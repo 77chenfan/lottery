@@ -11,7 +11,6 @@ import csv
 import requests
 import datetime
 import time
-import random
 
 url = "http://cp.zgzcw.com/lottery/jchtplayvsForJsp.action?lotteryId=47&type=jcmini&issue={date}"
 
@@ -72,7 +71,7 @@ def getOneDayData(date):
     sys.setdefaultencoding('utf-8')
     f1 = open('mylo.csv','ab+')
     mylowriter = csv.writer(f1)
-    
+
     #print "fetch: ",url.format(date=date)
     reponse = requests.get(url.format(date=date))
     bs= BS(reponse.text)
@@ -81,14 +80,17 @@ def getOneDayData(date):
     for tr in trs:
         mylo = lottery(tr,0)
         #print "%s\t%s vs %s\t%s\t%s vs %s\t(%s,%s)\t%s"%(mylo.matchtype,mylo.team1,mylo.team2,mylo.week,mylo.team1_rank,mylo.team2_rank,mylo.rq,mylo.rq2,('|').join(mylo.odds))
-        mylowriter.writerow([mylo.matchtype,mylo.team1+"vs"+mylo.team2,mylo.team1_rank+"vs"+mylo.team2_rank,mylo.week,mylo.rq+"|"+mylo.rq2,('|').join(mylo.odds)])
+        mylowriter.writerow([mylo.matchtype,mylo.team1+"vs"+mylo.team2,mylo.team1_rank+"vs"+mylo.team2_rank,mylo.week,date,mylo.rq+"|"+mylo.rq2,('|').join(mylo.odds)])
 if __name__ == '__main__':
-    date=sys.argv[1]
+    fdate=open('lastdate.txt','r+')
+    date=fdate.readlines()[0]
     #getOneDayData(date)
     datelist=create_assist_date(date)
     for d in datelist:
         getOneDayData(d)
         print "finish %s "%d
+        fdate.seek(0)
+        fdate.write(d)
         time.sleep(1)
 #    reload(sys)
 #    sys.setdefaultencoding('utf-8')
